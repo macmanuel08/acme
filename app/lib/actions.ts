@@ -16,7 +16,11 @@ const FormSchema = z.object({
   date: z.string(),
 });
  
-const CreateInvoice = FormSchema.omit({ id: true, date: true });
+const CreateInvoice = FormSchema.omit({ id: true, date: true }).extend({
+  amount: z.coerce.number().gt(0).lte(1000000000, {
+    message: 'Amount cannot exceed $1,000,000,000.',
+  }),
+});
 
 export type State = {
   errors?: {
@@ -56,7 +60,6 @@ export async function createInvoice(prevState: State, formData: FormData) {
     `;
   } catch (error) {
     // If a database error occurs, return a more specific error.
-
     return {
       message: 'Database Error: Failed to Create Invoice.',
       error: error,
